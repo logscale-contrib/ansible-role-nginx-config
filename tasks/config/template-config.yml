@@ -58,14 +58,15 @@
 
 - name: Ensure NGINX proxy cache directories exist
   ansible.builtin.file:
-    path: "{{ item[1]['path'] }}"
+    path: "{{ item }}"
     state: directory
     owner: "{{ nginx_config_main_template['config']['main']['user']['username'] | default('nginx') }}"
     mode: "0755"
-  loop: "{{ nginx_config_http_template | subelements(['config', 'proxy', 'cache_path'], skip_missing=True) }}"
+  loop: "{{ ngnix__http_proxy_cache_paths | unique() }} "
   loop_control:
-    label: "{{ item[1]['path'] | default('config[''proxy''][''cache_path''][''path''] undefined') }}" # noqa jinja[spacing]
+    label: "{{ item }}" # noqa jinja[spacing]
   when: nginx_config_http_template_enable | bool
+  debugger: on_failed
 
 - name: Ensure NGINX HTTP directory exists
   ansible.builtin.file:
